@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 const userRouter = express.Router();
 
-userRouter.post("/login", async (req, res) => {
+userRouter.post("/auth/login", async (req, res) => {
   const { user, password } = req.body;
   const NAMESPACE = process.env.NAMESPACE || NIL;
   const AUTHSECRET = process.env.AUTHSECRET || "secret";
@@ -44,7 +44,7 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
-userRouter.post("/register", async (req, res) => {
+userRouter.post("/auth/register", async (req, res) => {
   const { user, password } = req.body;
   const NAMESPACE = process.env.NAMESPACE || NIL;
 

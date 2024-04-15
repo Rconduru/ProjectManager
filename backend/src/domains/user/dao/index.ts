@@ -64,6 +64,23 @@ class UserDAO {
       );
     }
   }
+
+  public async userCount(): Promise<number> {
+    const query = {
+      text: "SELECT COUNT(*) FROM users",
+      values: [],
+    };
+    try {
+      const result = await this.pool.query<{ count: number }>(query);
+      return result.rows[0].count;
+    } catch (error) {
+      throw new DbException(
+        "Erro ao contar usuários",
+        "UserDAO.userCount",
+        error as Error
+      );
+    }
+  }
 }
 
 export default UserDAO;

@@ -7,6 +7,7 @@ import { Router } from "express";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Project Manager working well!");
@@ -20,7 +21,5 @@ const routeList: Router[] = [...Object.values(apiRoutes)];
 for (const route of routeList) {
   app.use("/api/v1", authorization, route);
 }
-
-app.use(cors({ origin: ["http://localhost:3000"] }));
 
 export default app;

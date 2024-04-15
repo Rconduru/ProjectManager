@@ -1,7 +1,11 @@
 import { Pool } from "pg";
 
 import { IDao } from "../../../models/dao.interface";
-import { IProject } from "../../../models/project.model";
+import {
+  IProject,
+  IProjectWithTasks,
+  IProjectWithTasksResult,
+} from "../../../models/project.model";
 
 import connectionPool from "../../../db";
 import { IQuery } from "../../../models/query.interface";
@@ -116,6 +120,73 @@ class ProjectDAO implements IDao<IProject> {
       throw new DbException(
         "Erro ao inserir subprojeto",
         "ProjectDAO.saveSubProject",
+        error as Error
+      );
+    }
+  }
+
+  public async getProjectsWithTasks(): Promise<IProjectWithTasks[]> {
+    const query: IQuery = {
+      text: `SELECT p.id as project_id, p.title, p.description, p.status, p.started_at as project_started,
+            t.id, t.title as task_title, t.description as task_description, t.is_finished, t.ended_at 
+            FROM projects p LEFT JOIN tasks t ON p.id = t.project_id
+            ORDER BY p.id, t.id`,
+      values: [],
+    };
+
+    try {
+      const result = await this.pool.query<IProjectWithTasksResult>(query);
+
+      const projects: IProjectWithTasks[] = [];
+      let currentProject: IProjectWithTasks | undefined;
+      for (const row of result.rows) {
+        if (!currentProject || currentProject.id !== row.project_id) {
+          currentProject = {
+            id: row.project_id,
+            title: row.title,
+            description: row.description,
+            startedAt: new Date(row.project_started),
+            status: row.status,
+            tasks: [],
+          };
+          projects.push(currentProject);
+        }
+
+        if (row.id) {
+          currentProject.tasks.push({
+            id: row.id,
+            title: row.task_title,
+            description: row.task_description,
+            status: row.is_finished ? "finished" : "pending",
+            projectId: row.project_id,
+            endedAt: new Date(row.ended_at),
+          });
+        }
+      }
+
+      return projects;
+    } catch (error) {
+      throw new DbException(
+        "Erro ao consultar projetos com tarefas",
+        "ProjectDAO.getProjectsWithTasks",
+        error as Error
+      );
+    }
+  }
+
+  public async getProjectCount(): Promise<number> {
+    const query: IQuery = {
+      text: "SELECT COUNT(*) FROM projects",
+      values: [],
+    };
+
+    try {
+      const result = await this.pool.query<{ count: number }>(query);
+      return result.rows[0].count;
+    } catch (error) {
+      throw new DbException(
+        "Erro ao consultar quantidade de projetos",
+        "ProjectDAO.getProjectCount",
         error as Error
       );
     }

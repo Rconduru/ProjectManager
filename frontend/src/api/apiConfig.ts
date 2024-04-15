@@ -10,6 +10,10 @@ const baseURL = `${
   process.env.REACT_APP_BASE_URL || "http://localhost:4000"
 }/api/v1`;
 
+const baseAuthURL = `${
+  process.env.REACT_APP_BASE_URL || "http://localhost:4000"
+}/auth`;
+
 const errorMessages: { [key: number]: string } = {
   400: "Algo deu errado. Tente novamente mais tarde.",
   401: "Não autorizado a acessar este recurso.",
@@ -27,19 +31,13 @@ const responseInterceptor = (response: AxiosResponse) => response;
  */
 const responseErrorInterceptor = (error: AxiosError) => {
   const HTTPStatusCode = error.response ? error.response?.status : 0;
-  // TODO 1
-  // Quando voltar alguma regra de negócio do back pelo Status code 400
-  // será necessário tratá-la
-  // const errorData = error.response?.data
+
   const msg = JSON.stringify({ msg: errorMessages[HTTPStatusCode] });
 
   switch (true) {
     case HTTPStatusCode === 400:
-      //TODO 2
-      // Como dito acima, deverá ser alinhado com o backend
-      // as mensagem que serão lançadas quando houver regrade negócio
-      // Caso não haja, retirar esse comentário horrível daqui
-      throw new BadRequestException(msg);
+      const errorData = error.response?.data as { message: string };
+      throw new BadRequestException(errorData.message || msg);
     case HTTPStatusCode === 401:
       throw new UnauthorizedException(msg);
     case HTTPStatusCode === 404:
@@ -61,7 +59,7 @@ const responseErrorInterceptor = (error: AxiosError) => {
 const requestInterceptor = (
   request: InternalAxiosRequestConfig
 ): InternalAxiosRequestConfig => {
-  const TOKEN = localStorage.getItem("token");
+  const TOKEN = localStorage.getItem("access_token");
 
   request.headers["Authorization"] = `Bearer ${TOKEN}`;
 
@@ -70,6 +68,7 @@ const requestInterceptor = (
 
 export {
   baseURL,
+  baseAuthURL,
   responseInterceptor,
   responseErrorInterceptor,
   requestInterceptor,

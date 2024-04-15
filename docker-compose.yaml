@@ -11,6 +11,7 @@ services:
       - 5432:5432
     volumes:
       - ./db/migration/000001_init_schema.up.sql:/docker-entrypoint-initdb.d/000001_init_schema.up.sql
+      - ./db/migration/000002_example_data.up.sql:/docker-entrypoint-initdb.d/000002_example_data.up.sql
     networks:
       - project-manager-network
 
@@ -28,6 +29,21 @@ services:
       - project-manager-network
     depends_on:
       - database
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    restart: always
+    env_file:
+      - ./frontend/.env
+    ports:
+      - 3000:3000
+    networks:
+      - project-manager-network
+    depends_on:
+      - backend
 
 networks:
   project-manager-network:
