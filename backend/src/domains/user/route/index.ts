@@ -2,6 +2,7 @@ import express from "express";
 import { v5 as uuidv5, NIL } from "uuid";
 import UserDAO from "../dao";
 import jwt from "jsonwebtoken";
+import { toUserRole } from "../../../models/role.models";
 
 const userRouter = express.Router();
 
@@ -18,8 +19,8 @@ userRouter.post("/auth/login", async (req, res) => {
     const userData = await dao.getByUserAndPassword(user, passwordV5);
 
     if (userData) {
-      const token = jwt.sign({ user }, AUTHSECRET, {
-        expiresIn: 60,
+      const token = jwt.sign({ userId: userData.id, role: toUserRole(userData.role) }, AUTHSECRET, {
+        expiresIn: "7d",
       });
 
       return res.status(200).send({
@@ -45,14 +46,14 @@ userRouter.post("/auth/login", async (req, res) => {
 });
 
 userRouter.post("/auth/register", async (req, res) => {
-  const { user, password } = req.body;
+  const { user, password, role } = req.body;
   const NAMESPACE = process.env.NAMESPACE || NIL;
 
   const passwordV5 = uuidv5(password, NAMESPACE);
 
   try {
     const dao = new UserDAO();
-    await dao.save({ username: user, password: passwordV5 });
+    await dao.save({ username: user, password: passwordV5, role });
 
     res.status(200).send({ message: "Usuário cadastrado com sucesso" });
   } catch (error) {

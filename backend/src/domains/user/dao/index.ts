@@ -14,8 +14,8 @@ class UserDAO {
 
   public async save(user: IUser): Promise<IUser> {
     const query = {
-      text: "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *",
-      values: [user.username, user.password],
+      text: "INSERT INTO users (username, password) VALUES ($1, $2, $3) RETURNING *",
+      values: [user.username, user.password, user.role],
     };
     try {
       const result = await this.pool.query<IUser>(query);

@@ -15,35 +15,41 @@ services:
     networks:
       - project-manager-network
 
-  backend:
-    container_name: backend
-    build:
-      context: ./backend
-      dockerfile: ./Dockerfile
-    restart: always
-    env_file:
-      - ./backend/.env
-    ports:
-      - 3020:3020
-    networks:
-      - project-manager-network
-    depends_on:
-      - database
+  # backend:
+  #   container_name: backend
+  #   build:
+  #     context: ./backend
+  #     dockerfile: ./Dockerfile
+  #   restart: always
+  #   env_file:
+  #     - ./backend/.env
+  #   ports:
+  #     - 3020:3020
+  #   volumes:
+  #     - ./backend:/build
+  #   watch:
+  #     - action: sync+restart
+  #       path: ./backend/src
+  #       target: /usr/src/app/src
+  #   networks:
+  #     - project-manager-network
+  #   depends_on:
+  #     - database
 
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: ./Dockerfile
-    restart: always
-    env_file:
-      - ./frontend/.env
-    ports:
-      - 3000:3000
-    networks:
-      - project-manager-network
-    depends_on:
-      - backend
+  # frontend:
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: ./Dockerfile
+  #   restart: always
+  #   env_file:
+  #     - ./frontend/.env
+  #   ports:
+  #     - 3000:3000
+  #   networks:
+  #     - project-manager-network
+  #   depends_on:
+  #     - backend
 
 networks:
   project-manager-network:

@@ -27,10 +27,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
-const config_1 = __importDefault(require("config"));
+const db_1 = __importDefault(require("./db"));
+const config_1 = __importDefault(require("./config"));
 dotenv.config();
-const PORT = process.env.PORT || "3000";
+const PORT = process.env.PORT || "3020";
 const HOSTNAME = process.env.HOSTNAME || "localhost";
-config_1.default.listen(PORT, () => {
+const server = config_1.default.listen(PORT, () => {
     console.log(`Server running at ${HOSTNAME}`);
+});
+process.on("SIGINT", () => {
+    db_1.default.end();
+    server.close();
+    console.log("Server closed!");
 });

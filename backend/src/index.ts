@@ -4,11 +4,11 @@ import onReadyApi from "./config";
 
 dotenv.config();
 
-const PORT = process.env.PORT || "3020";
-const HOSTNAME = process.env.HOSTNAME || "localhost";
+const API_PORT = process.env.API_PORT || "3020";
+const API_HOSTNAME = process.env.API_HOSTNAME || "localhost";
 
-const server = onReadyApi.listen(PORT, () => {
-  console.log(`Server running at ${HOSTNAME}`);
+const server = onReadyApi.listen(API_PORT, () => {
+  console.log(`Server running at ${API_HOSTNAME}:${API_PORT}`);
 });
 
 process.on("SIGINT", () => {

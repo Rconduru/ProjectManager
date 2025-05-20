@@ -29,7 +29,7 @@ class ProjectDAO implements IDao<IProject> {
     } catch (error) {
       throw new DbException(
         "Erro ao consultar projeto com erro específico",
-        "ProjectDAO.get",
+        "--> ProjectDAO.get",
         error as Error
       );
     }
@@ -106,7 +106,7 @@ class ProjectDAO implements IDao<IProject> {
 
   public async saveSubProject(project: IProject): Promise<void> {
     const query: IQuery = {
-      text: "INSERT INTO projects (title, description, started_at, project_id) VALUES ($1, $2, $3, $4) RETURNING *",
+      text: "INSERT INTO projects (title, description, started_at, project_id, type) VALUES ($1, $2, $3, $4, 'subproject') RETURNING *",
       values: [
         project.title,
         project.description,

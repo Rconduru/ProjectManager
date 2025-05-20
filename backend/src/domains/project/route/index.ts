@@ -1,43 +1,25 @@
 import express from "express";
 import ProjectDAO from "../dao";
-import { IProject } from "../../../models/project.model";
+import { validateInputData } from "../../../middlewares/validation";
+import { ProjectSaveSchema } from "../../../schemas/project.schema"
+import { getAllProjects, saveProject, saveSubProject } from "../controller";
+import { checkRole } from "../../../middlewares/authorization";
+import { UserRole } from "../../../models/role.models";
 
 const projectRouter = express.Router();
 
-projectRouter.get("/projects", async (req, res) => {
-  const dao = new ProjectDAO();
-  try {
-    const projects = await dao.getAll();
-    res.status(200).send(projects);
-  } catch (error) {
-    console.log(error);
+projectRouter.get("/projects", getAllProjects);
 
-    res.status(500).send({
-      status: "error",
-      message:
-        "Desculpe, tivemos um problema interno. Estamos trabalhando para resolver.",
-    });
-  }
-});
+projectRouter.post("/projects",
+  checkRole([UserRole.ADMIN, UserRole.EDITOR]), 
+  validateInputData(ProjectSaveSchema),
+  saveProject);
 
-projectRouter.post("/projects", async (req, res) => {
-  const project: IProject = req.body;
 
-  try {
-    const dao = new ProjectDAO();
-    const result = await dao.save(project);
-
-    res.status(200).send(result);
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).send({
-      status: "error",
-      message:
-        "Desculpe, tivemos um problema interno. Estamos trabalhando para resolver.",
-    });
-  }
-});
+projectRouter.post("/projects/:id/subproject",
+  checkRole([UserRole.ADMIN, UserRole.EDITOR]),
+  validateInputData(ProjectSaveSchema), 
+  saveSubProject);
 
 projectRouter.put("/projects/:id", (req, res) => {
   res.send("Update project");
