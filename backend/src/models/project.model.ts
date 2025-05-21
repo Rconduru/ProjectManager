@@ -2,12 +2,14 @@ import { ITask } from "./task.interface";
 
 export interface IProject {
   id: number;
+  projectId?: number;
   title: string;
   description: string;
-  startedAt: Date;
-  endDate?: Date;
   status: string;
-  projectId?: number;
+  startedAt: Date;
+  createdAt: Date;
+  endedDate?: Date;
+  createdBy: number;
 }
 
 export interface IProjectWithTasksResult {
@@ -15,12 +17,15 @@ export interface IProjectWithTasksResult {
   title: string;
   description: string;
   status: string;
-  project_started: string;
+  project_started: Date;
+  project_ended: Date;
+  project_created: Date;
+  project_created_by: number;
   id: number;
   task_title: string;
   task_description: string;
   is_finished: boolean;
-  ended_at: string;
+  ended_at: Date;
 }
 
 export interface IProjectWithTasks extends IProject {

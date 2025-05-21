@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 
-import { IDao } from "../../../models/dao.interface";
+import { IDaoOwner } from "../../../models/dao.interface";
 import {
   IProject,
   IProjectWithTasks,
@@ -11,11 +11,28 @@ import connectionPool from "../../../db";
 import { IQuery } from "../../../models/query.interface";
 import { DbException } from "../../../exceptions";
 
-class ProjectDAO implements IDao<IProject> {
+class ProjectDAO implements IDaoOwner<IProject> {
   private pool: Pool;
 
   constructor() {
     this.pool = connectionPool;
+  }
+
+  public async getByIdAndOwnerId(projectId: number, ownerId: number): Promise<IProject> {
+    const query: IQuery = {
+      text: "SELECT * FROM projects WHERE id = $1 AND created_by = $2",
+      values: [projectId, ownerId],
+    };
+    try {
+      const result = await this.pool.query<IProject>(query);
+      return result.rows[0];
+    } catch (error) {
+      throw new DbException(
+        "Erro ao consultar projetos por ID do criador",
+        "ProjectDAO.getByOwnerId",
+        error as Error
+      );
+    }
   }
 
   public async get(id: number): Promise<IProject> {
@@ -55,8 +72,8 @@ class ProjectDAO implements IDao<IProject> {
 
   public async save(project: IProject): Promise<IProject> {
     const query: IQuery = {
-      text: "INSERT INTO projects (title, description, started_at) VALUES ($1, $2, $3) RETURNING *",
-      values: [project.title, project.description, new Date()],
+      text: "INSERT INTO projects (title, description, started_at, created_by) VALUES ($1, $2, $3, $4) RETURNING *",
+      values: [project.title, project.description, new Date(), project.createdBy],
     };
     try {
       const result = await this.pool.query<IProject>(query);
@@ -106,11 +123,12 @@ class ProjectDAO implements IDao<IProject> {
 
   public async saveSubProject(project: IProject): Promise<void> {
     const query: IQuery = {
-      text: "INSERT INTO projects (title, description, started_at, project_id, type) VALUES ($1, $2, $3, $4, 'subproject') RETURNING *",
+      text: "INSERT INTO projects (title, description, started_at, project_id, created_by, type) VALUES ($1, $2, $3, $4, $5, 'subproject') RETURNING *",
       values: [
         project.title,
         project.description,
         Date.now(),
+        project.createdBy,
         project.projectId,
       ],
     };
@@ -128,6 +146,7 @@ class ProjectDAO implements IDao<IProject> {
   public async getProjectsWithTasks(): Promise<IProjectWithTasks[]> {
     const query: IQuery = {
       text: `SELECT p.id as project_id, p.title, p.description, p.status, p.started_at as project_started,
+            p.ended_at as project_ended, p.created_at as project_created, p.created_by as project_created_by,
             t.id, t.title as task_title, t.description as task_description, t.is_finished, t.ended_at 
             FROM projects p LEFT JOIN tasks t ON p.id = t.project_id
             ORDER BY p.id, t.id`,
@@ -147,6 +166,8 @@ class ProjectDAO implements IDao<IProject> {
             description: row.description,
             startedAt: new Date(row.project_started),
             status: row.status,
+            createdAt: row.project_started,
+            createdBy: row.project_created_by,
             tasks: [],
           };
           projects.push(currentProject);

@@ -5,3 +5,8 @@ export interface IDao<T> {
   update(t: T): Promise<void>;
   delete(id: number): Promise<void>;
 }
+
+export interface IDaoOwner<T> extends IDao<T> {
+  getByIdAndOwnerId(id: number, ownerId: number): Promise<T>;
+
+}

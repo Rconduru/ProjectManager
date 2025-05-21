@@ -19,7 +19,7 @@ userRouter.post("/auth/login", async (req, res) => {
     const userData = await dao.getByUserAndPassword(user, passwordV5);
 
     if (userData) {
-      const token = jwt.sign({ userId: userData.id, role: toUserRole(userData.role) }, AUTHSECRET, {
+      const token = jwt.sign({ id: userData.id, role: toUserRole(userData.role) }, AUTHSECRET, {
         expiresIn: "7d",
       });
 
