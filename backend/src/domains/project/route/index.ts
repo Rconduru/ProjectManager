@@ -3,7 +3,7 @@ import ProjectDAO from "../dao";
 import { validateInputData } from "../../../middlewares/validation";
 import { ProjectSaveSchema } from "../../../schemas/project.schema"
 import { getAllProjects, saveProject, saveSubProject } from "../controller";
-import { checkRole } from "../../../middlewares/authorization";
+import { isAuthorizated } from "../../../middlewares/authorization";
 import { UserRole } from "../../../models/role.models";
 
 const projectRouter = express.Router();
@@ -11,13 +11,13 @@ const projectRouter = express.Router();
 projectRouter.get("/projects", getAllProjects);
 
 projectRouter.post("/projects",
-  checkRole([UserRole.ADMIN, UserRole.EDITOR]), 
+  isAuthorizated([UserRole.ADMIN, UserRole.EDITOR]), 
   validateInputData(ProjectSaveSchema),
   saveProject);
 
 
 projectRouter.post("/projects/:id/subproject",
-  checkRole([UserRole.ADMIN, UserRole.EDITOR]),
+  isAuthorizated([UserRole.ADMIN, UserRole.EDITOR]),
   validateInputData(ProjectSaveSchema), 
   saveSubProject);
 

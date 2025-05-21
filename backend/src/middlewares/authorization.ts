@@ -3,7 +3,7 @@ import { Response, NextFunction } from "express";
 import { JWTDecoded, JwtRequest } from "../models/user.model";
 import { UserRole } from "../models/role.models";
 
-export const authorization = (
+export const isAuthenticated = (
   req: JwtRequest,
   res: Response,
   next: NextFunction
@@ -31,7 +31,7 @@ export const authorization = (
 
 };
 
-export const checkRole = (roles: UserRole[]) => {
+export const isAuthorizated = (roles: UserRole[]) => {
   return (req: JwtRequest, res: Response, next: NextFunction) => {
     const userRole = req.user?.role;
 

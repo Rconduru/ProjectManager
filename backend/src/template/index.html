@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Servidor Online</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to top, #1a0033 0%, #330066 50%, #ff0066 100%);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      text-shadow: 0 0 10px #ff00cc;
+    }
+
+    .sun {
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle at center, #ffcc00, #ff0066);
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 0 50px #ffcc00aa;
+      animation: pulse 3s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 50px #ffcc00aa;
+      }
+      50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 70px #ffcc00ff;
+      }
+    }
+
+    .ground {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 40%;
+      background: linear-gradient(to top, #110022 20%, transparent);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    h1 {
+      margin-top: 30px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    /* Synthwave grid effect */
+    .grid {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 40%;
+      background: repeating-linear-gradient(to top, #ff00cc33 0 2px, transparent 2px 20px),
+                  repeating-linear-gradient(to right, #ff00cc33 0 2px, transparent 2px 20px);
+      transform: perspective(200px) rotateX(60deg);
+      transform-origin: bottom;
+    }
+  </style>
+</head>
+<body>
+  <div class="sun"></div>
+  <h1>Servidor está funcionando corretamente!</h1>
+  <div class="ground">
+    <div class="grid"></div>
+  </div>
+</body>
+</html>
