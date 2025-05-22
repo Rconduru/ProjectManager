@@ -5,12 +5,13 @@ import { StatusCode } from "../../../models/statusCode";
 import { JwtRequest } from "../../../models/user.model";
 
 export const getAllProjects = async (req: Request, res: Response) => {
+  req.log.info("## Get all projects");
   const dao = new ProjectDAO();
   try {
     const projects = await dao.getAll();
     res.status(200).send(projects);
   } catch (error) {
-    console.log(error);
+    req.log.error("## ERROR - Get all projects", error);
 
     res.status(500).send({
       status: "error",
