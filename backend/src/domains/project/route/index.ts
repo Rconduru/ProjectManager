@@ -2,7 +2,7 @@ import express from "express";
 import ProjectDAO from "../dao";
 import { validateInputData, validateOwner } from "../../../middlewares/validation";
 import { ProjectSaveSchema } from "../../../schemas/project.schema"
-import { getAllProjects, getProjectById, saveProject, saveSubProject } from "../controller";
+import { getAllProjects, getProjectById, saveProject, saveSubProject, updateProject } from "../controller";
 import { isAuthorizated } from "../../../middlewares/authorization";
 import { UserRole } from "../../../models/role.models";
 import { IProject } from "../../../models/project.model";
@@ -10,7 +10,7 @@ import { IProject } from "../../../models/project.model";
 const projectRouter = express.Router();
 
 projectRouter.get("/projects", getAllProjects);
-projectRouter.get("/projects/:id", validateOwner<IProject>(new ProjectDAO()), getProjectById);
+projectRouter.get("/projects/:id", getProjectById);
 
 projectRouter.post("/projects",
   isAuthorizated([UserRole.ADMIN, UserRole.EDITOR]), 
@@ -19,12 +19,15 @@ projectRouter.post("/projects",
 
 projectRouter.post("/projects/:id/subproject",
   isAuthorizated([UserRole.ADMIN, UserRole.EDITOR]),
+  validateOwner<IProject>(new ProjectDAO()),
   validateInputData(ProjectSaveSchema), 
   saveSubProject);
 
-projectRouter.put("/projects/:id", (req, res) => {
-  res.send("Update project");
-});
+projectRouter.put("/projects/:id", 
+  isAuthorizated([UserRole.ADMIN, UserRole.EDITOR]),
+  validateOwner<IProject>(new ProjectDAO()),
+  validateInputData(ProjectSaveSchema),
+  updateProject);
 
 projectRouter.delete("/projects/:id", (req, res) => {
   res.send("Delete project");

@@ -89,7 +89,7 @@ class ProjectDAO implements IDaoOwner<IProject> {
 
   public async update(project: IProject): Promise<void> {
     const query: IQuery = {
-      text: "UPDATE projects SET title = $1, description = $2 WHERE id = $3",
+      text: "UPDATE projects SET title = $1, description = $2 WHERE id = $3 RETURNING *",
       values: [project.title, project.description, project.id],
     };
 
@@ -121,19 +121,21 @@ class ProjectDAO implements IDaoOwner<IProject> {
     }
   }
 
-  public async saveSubProject(project: IProject): Promise<void> {
+  public async saveSubProject(project: IProject): Promise<IProject> {
     const query: IQuery = {
-      text: "INSERT INTO projects (title, description, started_at, project_id, created_by, type) VALUES ($1, $2, $3, $4, $5, 'subproject') RETURNING *",
+      text: "INSERT INTO projects (title, description, started_at, project_id, created_by, type) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
       values: [
         project.title,
         project.description,
-        Date.now(),
-        project.createdBy,
+        new Date(),
         project.projectId,
+        project.createdBy,
+        'subproject',
       ],
     };
     try {
-      await this.pool.query<IProject>(query);
+      const result = await this.pool.query<IProject>(query);
+      return result.rows[0];
     } catch (error) {
       throw new DbException(
         "Erro ao inserir subprojeto",

@@ -46,7 +46,6 @@ export const getProjectById = async (req: Request, res: Response) => {
 
 export const saveProject = async (req: JwtRequest, res: Response) => {
   const userId = req.user?.id;
-  console.log(req.user);
   const project: IProject = req.body;
   project.createdBy = userId as number;
 
@@ -66,11 +65,14 @@ export const saveProject = async (req: JwtRequest, res: Response) => {
   }
 };
 
-export const saveSubProject = async (req: Request, res: Response) => {
+export const saveSubProject = async (req: JwtRequest, res: Response) => {
 
   const projectId = req.params.id;
+  const userId = req.user?.id;
+
   const project: IProject = req.body;
-  project.id = Number(projectId);
+  project.projectId = Number(projectId);
+  project.createdBy = userId as number;
 
   try {
     const dao = new ProjectDAO();
@@ -78,10 +80,31 @@ export const saveSubProject = async (req: Request, res: Response) => {
 
     res.status(StatusCode.CREATED).send(result);
   } catch (error) {
+    console.log(error);
     res.status(500).send({
       status: "error",
       message:
         "Desculpe, tivemos um problema interno. Estamos trabalhando para resolver.",
     });
   }
-}
+};
+
+export const updateProject = async (req: Request, res: Response) => {
+  const projectId = req.params.id;
+  const project: IProject = req.body;
+  project.id = Number(projectId);
+
+  try {
+    const dao = new ProjectDAO();
+    await dao.update(project);
+
+    res.status(StatusCode.OK).send(project);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "error",
+      message:
+        "Desculpe, tivemos um problema interno. Estamos trabalhando para resolver.",
+    });
+  }
+};
